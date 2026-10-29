@@ -1,0 +1,4 @@
+# dsh-pixel-office6 bundle patch
+- insert:
+    - id: pixel-office6
+      name: 'dsh-pixel-office6'
