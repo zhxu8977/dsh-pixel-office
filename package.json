@@ -1,0 +1,40 @@
+{
+  "name": "dsh-pixel-office6",
+  "version": "0.6.0",
+  "private": false,
+  "type": "module",
+  "description": "像素办公室 v6 — 多办公室 + 按属性自动排班（自动决定精灵与人数）+ 右侧栏停靠",
+  "main": "./lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ]
+    }
+  },
+  "license": "MIT",
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "pokemon",
+    "pixel-art",
+    "office",
+    "game"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OWNER/dsh-pixel-office.git"
+  },
+  "homepage": "https://github.com/OWNER/dsh-pixel-office#readme"
+}
