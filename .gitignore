@@ -1,0 +1,9 @@
+node_modules/
+*.bak*
+*.log
+.DS_Store
+state.json
+routing.json
+history.json
+sprites/
+window-profile/
