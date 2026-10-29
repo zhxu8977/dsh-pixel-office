@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>像素办公室</title>
+<style>
+  html, body { height: 100%; margin: 0; background: #0d1117; color: #e6edf3;
+    font: 13px/1.5 "Microsoft YaHei UI", "Segoe UI", system-ui, sans-serif; }
+  #root { height: 100%; }
+  #boot { padding: 16px; color: #8b949e; }
+  #boot b { color: #f85149; }
+</style>
+</head>
+<body>
+<div id="root"><div id="boot">正在装载办公室界面…</div></div>
+<script src="/dsh-pixel-office/vendor/react.js"></script>
+<script src="/dsh-pixel-office/vendor/react-dom.js"></script>
+<script>
+/* 独立窗口 = 直接挂载插件自己那一套 React UI（和侧边栏完全同一份组件），
+   所以动画、文字栏、选项卡、交互全部一致，只是显示在一个普通窗口里。 */
+(function () {
+  var disposers = [];
+  var root = document.getElementById("root");
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function showError(message) {
+    root.innerHTML = '<div id="boot">独立窗口没能装载界面：<b>' + esc(message) + '</b><br>（这里复用侧边栏的同一套 UI；如果刚更新过插件，重启 DSH 再试）</div>';
+  }
+  window.__officeWindowError = function () { showError("客户端脚本加载失败（/dsh-pixel-office/client.js）"); };
+  var noop = function () { return function () {}; };
+  var slots = {
+    provideRoot: noop,
+    entries: function () { return []; },
+    entriesOfSlot: function () { return []; },
+    inject: function (name, cb) { try { cb(); } catch (e) {} return noop(); },
+    register: function () { return noop(); },
+  };
+  var base = {
+    slots: slots,
+    effect: function (fn) { try { var d = fn(); if (typeof d === "function") disposers.push(d); } catch (e) { console.warn("[office-window] effect:", e); } return noop(); },
+    get: function () { return undefined; },
+    inject: function (deps, cb) { try { cb(scope); } catch (e) {} return noop(); },
+    reflect: { provide: function () { return noop(); } },
+    locale: { register: noop, bind: function () { return function (k) { return k; }; } },
+    shortcuts: { register: noop, catalog: { getSnapshot: function () { return []; }, subscribe: noop }, closeWindow: function () { return Promise.resolve(); } },
+    theme: { get: function () { return undefined; }, subscribe: noop },
+  };
+  var scope = {
+    effect: base.effect, get: base.get, slots: slots, locale: base.locale, shortcuts: base.shortcuts,
+    sidebarRightTabs: { register: noop },
+    sidebarRight: { openTab: noop, registerCloseHandler: noop, commandTarget: function () { return undefined; },
+      openTabs: { getSnapshot: function () { return []; }, subscribe: noop } },
+  };
+  var ctx = new Proxy(base, {
+    get: function (t, k) {
+      if (k in t) return t[k];
+      if (typeof k === "string" && k.indexOf("__") !== 0) return noop;
+      return undefined;
+    },
+  });
+
+  window.__ModuleLoader__ = {
+    load: function (mod) {
+      try {
+        var m = mod.factory(function (name) {
+          if (name === "react") return window.React;
+          if (name === "react/jsx-runtime" || name === "react/jsx-dev-runtime") {
+            var R = window.React;
+            return { jsx: R.createElement, jsxs: R.createElement, Fragment: R.Fragment };
+          }
+          return new Proxy({}, { get: function () { return noop; } });
+        });
+        if (m && typeof m.apply === "function") m.apply(ctx);
+      } catch (e) { showError((e && e.message) || e); }
+    },
+  };
+
+  window.__officeWindowMount = function () {
+    try {
+      if (typeof window.__pixelOfficePane !== "function") { showError("插件未暴露挂载点 __pixelOfficePane（客户端代码可能是旧版）"); return; }
+      window.ReactDOM.createRoot(root).render(window.React.createElement(window.__pixelOfficePane));
+    } catch (e) { showError((e && e.message) || e); }
+  };
+})();
+</script>
+<script src="/dsh-pixel-office/client.js" onload="window.__officeWindowMount()" onerror="window.__officeWindowError()"></script>
+</body>
+</html>
