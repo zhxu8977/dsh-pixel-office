@@ -1,6 +1,8 @@
 # 像素办公室 · dsh-pixel-office
 
 > 把 DeepSeek Harness 里的 AI 会话，变成一间看得见的像素办公室——16 只宝可梦分部门坐班，谁在忙、谁在摸鱼，一眼看到。
+>
+> **仓库地址**：<https://github.com/zhxu8977/dsh-pixel-office>
 
 ![像素办公室](docs/images/00-opening.png)
 
